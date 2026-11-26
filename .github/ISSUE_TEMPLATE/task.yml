@@ -1,0 +1,54 @@
+name: 작업
+description: PoC 관문을 제외한 모든 작업 (Feature, Research, Decision, Docs, Chore 등)
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 목적
+      description: 왜 필요한가
+    validations:
+      required: true
+  - type: textarea
+    id: done-criteria
+    attributes:
+      label: 완료 기준
+      description: 무엇이 확인되면 Done인가
+    validations:
+      required: true
+  - type: input
+    id: refs
+    attributes:
+      label: 관련 식별자
+      description: FR, NFR, D, U, T, G, SC 등. 없으면 "없음"
+    validations:
+      required: true
+  - type: dropdown
+    id: security-impact
+    attributes:
+      label: 보안 영향
+      options:
+        - 있음
+        - 없음
+    validations:
+      required: true
+  - type: textarea
+    id: security-impact-detail
+    attributes:
+      label: 보안 영향 근거
+      description: 관련 위협·요구사항 식별자. 영향이 없으면 그 근거
+    validations:
+      required: true
+  - type: textarea
+    id: pending-decisions
+    attributes:
+      label: 착수 전 결정
+      description: 착수에 필요한 미결정 정책 (Feature). 없으면 비워 둔다
+    validations:
+      required: false
+  - type: textarea
+    id: verification
+    attributes:
+      label: 검증 방법
+      description: 테스트, 시나리오, 측정
+    validations:
+      required: true
