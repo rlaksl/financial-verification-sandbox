@@ -11,7 +11,7 @@
 | 필드 | 형식 | 값 | 쓰임 |
 | --- | --- | --- | --- |
 | Status | 단일 선택 | Backlog / Ready / In Progress / In Review / Blocked / Done | 흐름 관리 |
-| Iteration | 반복 | 1주 | Sprint |
+| Iteration | 반복 | 2주 | Sprint |
 | Priority | 단일 선택 | P0 / P1 / P2 | P0은 필수 보안 요구사항 또는 관문을 막는 작업 |
 | Estimate | 숫자 | 1, 2, 3, 5, 8 | Story Point (XS 1, S 2, M 3, L 5, XL 8) |
 | Area | 단일 선택 | 인증, 토큰, 무결성, 재전송, 키 관리, 배포, 업무, 문서, DevSecOps | 영역별 진척 |
@@ -52,7 +52,7 @@
 
 | 항목 | 규칙 |
 | --- | --- |
-| 기간 | 1주 |
+| 기간 | 2주 (D-O29) |
 | 용량 | 초기에는 정하지 않는다. 실제 완료한 Estimate 합계(Velocity)를 기록하고 이후 계획에 반영한다 |
 | 집계 단위 | 실제 작업 단위만 집계한다. Sub-issue가 있으면 Sub-issue, 없으면 그 이슈. Epic과 Sub-issue를 가진 상위 이슈에는 Estimate를 넣지 않는다 |
 | 집계 제외 | Sprint 운영 기록용 Chore 이슈 |

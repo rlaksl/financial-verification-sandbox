@@ -7,7 +7,7 @@
 | 항목 | 규칙 |
 | --- | --- |
 | 대상 | 정식 서비스 버전. Phase 0 ~ 3은 Release 없이 문서 결과로 종료한다 |
-| 태그 | 형식은 첫 Release 때 정한다 (U-33) |
+| 태그 | Annotated Tag. Phase 종료 `phase-0-complete` ~ `phase-3-complete`(GitHub Release 없이 보관), 정식 버전 `v0.1.0` 형식. 검증과 병합이 끝난 main 커밋에만 생성하고 임의로 수정·삭제하지 않는다 (D-O32). 서명 여부는 U-35 |
 | Release Notes | 구현한 FR, 검증한 보안 요구사항, 알려진 한계, 관련 ADR, 검증 결과 문서 |
 | 금지 | 측정하지 않은 성능 수치, 검증하지 않은 보안 주장 |
 
