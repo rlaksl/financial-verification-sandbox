@@ -1,0 +1,72 @@
+name: PoC 관문
+description: PoC 관문(G1-a ~ G7) 검증
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 목적
+      description: 왜 필요한가
+    validations:
+      required: true
+  - type: textarea
+    id: done-criteria
+    attributes:
+      label: 완료 기준
+      description: 무엇이 확인되면 Done인가
+    validations:
+      required: true
+  - type: input
+    id: refs
+    attributes:
+      label: 관련 식별자
+      description: G, SC, T, D, U, FR, NFR 등
+    validations:
+      required: true
+  - type: dropdown
+    id: security-impact
+    attributes:
+      label: 보안 영향
+      options:
+        - 있음
+        - 없음
+    validations:
+      required: true
+  - type: textarea
+    id: security-impact-detail
+    attributes:
+      label: 보안 영향 근거
+      description: 관련 위협·요구사항 식별자. 영향이 없으면 그 근거
+    validations:
+      required: true
+  - type: textarea
+    id: preconditions
+    attributes:
+      label: 선행 조건
+      description: 관문 착수 전에 확정돼야 하는 실험 조건과 결정
+    validations:
+      required: true
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: 시나리오 목록
+      description: 검증할 시나리오(SC)와 검증 방법
+    validations:
+      required: true
+  - type: textarea
+    id: verdicts
+    attributes:
+      label: 판정 상태
+      description: 시나리오별 판정 상태. 실행 전에는 "미검증"으로 둔다
+      value: |
+        | 시나리오 | 판정 상태 | 실행 증거 |
+        | --- | --- | --- |
+        |  | 미검증 |  |
+    validations:
+      required: false
+  - type: textarea
+    id: failure-causes
+    attributes:
+      label: 실패 원인 분류
+      description: 실패한 시나리오의 원인 분류와 근거. 실패가 없으면 비워 둔다
+    validations:
+      required: false
