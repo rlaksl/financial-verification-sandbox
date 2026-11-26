@@ -27,7 +27,7 @@ Financial Verification Sandbox는 외부 고객사 서버에 모의 계좌 인�
 | 명세·프레임워크 소스 근거 (SPEC, SRC) | docs/research/spec-source-analysis.md |
 | 후보 기술 비교 | docs/research/technology-comparison.md |
 | PoC 관문, 시나리오, 판정 기준 | docs/poc/plan.md |
-| 채택된 결정의 근거 | docs/adr/ (아직 없음) |
+| 채택된 결정의 근거 | docs/adr/ |
 | 이슈·브랜치·커밋·PR·CI·리뷰 규칙 | docs/process/ |
 
 ## 3. 작업 전 확인
