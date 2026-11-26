@@ -29,6 +29,7 @@ Financial Verification Sandbox는 외부 고객사 서버에 모의 계좌 인�
 | PoC 관문, 시나리오, 판정 기준 | docs/poc/plan.md |
 | 채택된 결정의 근거 | docs/adr/ |
 | 이슈·브랜치·커밋·PR·CI·리뷰 규칙 | docs/process/ |
+| 작업 유형별 최소 문서, 작업 전후 검사, 인수인계 | docs/process/work-procedure.md |
 
 ## 3. 작업 전 확인
 
