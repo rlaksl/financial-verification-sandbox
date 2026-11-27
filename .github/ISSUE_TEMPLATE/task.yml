@@ -1,4 +1,4 @@
-name: 작업
+name: 일반 작업
 description: PoC 관문을 제외한 모든 작업 (Feature, Research, Decision, Docs, Chore 등)
 body:
   - type: textarea
