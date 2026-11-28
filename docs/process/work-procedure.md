@@ -13,7 +13,7 @@
 | 설계 문서 수정, 결정 변경 | 결정 대장 해당 절과 10·11절, [documentation.md](documentation.md) |
 | PoC 관문 | [PoC 계획](../poc/plan.md)의 해당 관문, 1절, 7절, 관련 T·SPEC·SRC |
 | 정식 기능 (Feature) | 요구사항 해당 FR·NFR과 9절, 관련 업무 정책, 위협 모델의 관련 공격자 |
-| CI, Hook, 비밀값 검사 | [ci-cd.md](ci-cd.md), [ADR-0001](../adr/0001-secret-scanning-betterleaks.md), 결정 대장 D-O24 ~ D-O28 |
+| CI, Hook, 비밀값 검사 | [ci-cd.md](ci-cd.md), [ADR-0001](../adr/0001-secret-scanning-betterleaks.md), 결정 대장 D-O24 ~ D-O28, D-O33 |
 | Issue·PR·브랜치·태그 | [git-workflow.md](git-workflow.md), [project-management.md](project-management.md), [release.md](release.md) |
 | AI 리뷰 | [ai-review.md](ai-review.md), 결정 대장 D-O12·D-O13 |
 
@@ -32,7 +32,7 @@
 | --- | --- | --- | --- |
 | 문서 변경 후 | 필수 파일, 식별자 중복 정의, 상대 링크, 공개 금지 정보 | `python3 -B -I scripts/check-docs.py` | 종료 코드 0 |
 | 검사 스크립트 변경 후 | 검사 스크립트 테스트 | `python3 -B -I scripts/tests/test_check_docs.py` | 종료 코드 0 |
-| 커밋 전·Push 전 | 비밀값 검사 | 커밋 전 `scripts/secret-scan.sh staged`와 `history`, Push 전 `history`와 전송 대상 커밋(`--rev`). Hook 설치 시 자동 실행되고, Hook이 실행되지 않으면 수동 실행이 필수다. 검사 스크립트가 없는 브랜치는 D-O28의 수동 절차 ([ci-cd.md](ci-cd.md) 3절) | 종료 코드 0 |
+| 커밋 전·Push 전 | 비밀값 검사 | 커밋 전 `scripts/secret-scan.sh staged`와 `history`, Push 전 `history`와 전송 대상 커밋(`--rev`). Hook 설치 시 자동 실행되고, Hook이 실행되지 않으면 수동 실행이 필수다. 검사 스크립트가 없는 브랜치는 검증된 실행 파일로 직접 검사 ([ci-cd.md](ci-cd.md) 3절) | 종료 코드 0 |
 | 검사 스크립트 변경 후 | 비밀값 검사·설치 스크립트 테스트 | `bash scripts/tests/test_secret_scan.sh`, `bash scripts/tests/test_install_betterleaks.sh` | 종료 코드 0 |
 | 커밋 후 | 작성자 정보와 메시지 | `git log -1 --format='%an %cn%n%B%n%(trailers)'` | 기존 작성자 정보, D-O31 위반 표시 없음 |
 
@@ -40,7 +40,7 @@
 - 검사 결과는 파이프라인 끝의 명령이 아니라 검사 명령 자체의 종료 코드로 판단한다.
 - 검증 절차나 검사 스크립트 자체의 오류도 실패로 처리한다. 원인을 확인하기 전에는 통과로 기록하지 않는다.
 
-**검증 증거 재사용.** 커밋 전 staged 변경분 검사와 기존 Git 이력 검사, Push 전 전체 Git 이력 검사, CI 필수 검사는 매번 실행하며 이전 결과로 대체하지 않는다 (D-O25, D-O26, D-O28). 그 밖의 검사는 다음을 모두 확인할 수 있을 때만 이전 실행 증거를 재사용할 수 있다. 트리 해시나 diff 해시는 확인 수단의 하나일 뿐이며, 그것만으로 같다고 판단하지 않는다. 확인이 어렵거나 하나라도 다르면 다시 실행한다. 모든 검사에 별도의 증거 관리 절차를 요구하지는 않는다.
+**검증 증거 재사용.** 커밋 전 staged 변경분 검사와 기존 Git 이력 검사, Push 전 전체 Git 이력 검사, CI 필수 검사는 매번 실행하며 이전 결과로 대체하지 않는다 (D-O25, D-O26). 그 밖의 검사는 다음을 모두 확인할 수 있을 때만 이전 실행 증거를 재사용할 수 있다. 트리 해시나 diff 해시는 확인 수단의 하나일 뿐이며, 그것만으로 같다고 판단하지 않는다. 확인이 어렵거나 하나라도 다르면 다시 실행한다. 모든 검사에 별도의 증거 관리 절차를 요구하지는 않는다.
 
 | 확인 항목 | 내용 |
 | --- | --- |

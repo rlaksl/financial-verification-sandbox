@@ -52,7 +52,7 @@
 | Hook 설치 | 클론마다 한 번 `git config --local core.hooksPath scripts/hooks`. 전역 설정은 쓰지 않으며 별도 설치 스크립트는 두지 않는다. pre-commit은 staged 변경분과 기존 전체 이력을, pre-push는 전체 이력과 실제 전송 대상 커밋(표준 입력의 로컬 SHA, 삭제 제외)을 검사한다. 입력 형식 오류나 검사 실패는 Push를 차단한다 |
 | Hook 해제 | `git config --local --unset core.hooksPath` |
 | Hook 확인·복구 | `git config --show-origin --get core.hooksPath`로 값과 위치를 확인한다. 값이 다르거나 전역 설정에서 온 경우 로컬 값을 다시 지정한다 |
-| Hook 미설치·미적용 | `core.hooksPath` 미설정, Hook 파일이 없는 브랜치, `--no-verify` 사용 등으로 Hook이 실행되지 않으면 같은 검사를 수동으로 실행해야 한다. 커밋 전 `staged`와 `history`, Push 전 `history`와 전송할 커밋의 `--rev`. 검사 스크립트가 없는 브랜치에서는 D-O28의 수동 절차를 따른다 |
-| D-O28 예외 | Hook 설치만으로 D-O28 예외를 종료하지 않는다. Rulesets와 병합 차단 검증이 끝나 예외가 종료될 때까지 필수 수동 검사와 PR 검증란의 결과 기록을 유지한다 |
+| Hook 미설치·미적용 | `core.hooksPath` 미설정, Hook 파일이 없는 브랜치, `--no-verify` 사용 등으로 Hook이 실행되지 않으면 같은 검사를 수동으로 실행해야 한다. 커밋 전 `staged`와 `history`, Push 전 `history`와 전송할 커밋의 `--rev`. 검사 스크립트가 없는 브랜치에서는 검증된 실행 파일을 `.betterleaks.toml`과 함께 직접 실행한다 (D-O25) |
+| D-O28 예외 | 2026-11-28에 종료했다(#9). PR의 비밀값 검사는 필수 CI가 맡는다. 종료 후에도 D-O25의 커밋 전·Push 전 검사 의무와 Hook이 실행되지 않을 때의 수동 검사 의무는 유지하며, 이 종료를 Hook 우회 허용으로 해석하지 않는다 |
 | Hook의 한계 | `--no-verify`, 설정 해제로 우회할 수 있다. Hook 스크립트는 저장소 파일이므로 브랜치를 바꾸면 그 브랜치의 Hook이 실행된다. Hook·검사 스크립트 변경은 보안 영향 있음으로 PR에 적는다. CI는 Hook 실행을 강제하지 않고, Push된 변경을 병합 전에 다시 검사한다. 이미 Push된 비밀값은 보호하지 못한다 (1절) |
 | 검사 설정 신뢰 | PR이 `.betterleaks.toml`이나 검사 스크립트를 바꿔 검사를 약화할 수 있다. PR 이벤트에서 CI는 base 커밋의 검사·설치 스크립트, `.betterleaks.toml`, `check-docs.py`와 테스트 코드를 쓰고, 검사 대상은 PR 체크아웃과 전체 Git 이력이다. `secret-scan.sh`에는 신뢰된 `--config`를, `check-docs.py`에는 검사 대상 `--root`를 지정한다. main Push에서는 해당 Push 커밋을 기준으로 한다. 검사 스크립트·설정을 바꾸는 PR은 병합 전 CI에서 새 버전으로 검증되지 않으므로 로컬 테스트 증거로 확인한다. Workflow 파일 자체의 변경은 이 방식으로 막지 못하며, Workflow 단독 PR 규칙과 저장소 소유자 검토에 의존한다 (D-O33) |
