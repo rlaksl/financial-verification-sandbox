@@ -32,7 +32,8 @@
 | --- | --- | --- | --- |
 | 문서 변경 후 | 필수 파일, 식별자 중복 정의, 상대 링크, 공개 금지 정보 | `python3 -B -I scripts/check-docs.py` | 종료 코드 0 |
 | 검사 스크립트 변경 후 | 검사 스크립트 테스트 | `python3 -B -I scripts/tests/test_check_docs.py` | 종료 코드 0 |
-| 커밋 전·Push 전 | 비밀값 검사 | D-O25의 검사 절차 (Hook 구성 전에는 D-O28의 수동 절차) | 종료 코드 0 |
+| 커밋 전·Push 전 | 비밀값 검사 | 커밋 전 `scripts/secret-scan.sh staged`와 `history`, Push 전 `history`와 전송 대상 커밋(`--rev`). Hook 설치 시 자동 실행되고, Hook이 실행되지 않으면 수동 실행이 필수다. 검사 스크립트가 없는 브랜치는 D-O28의 수동 절차 ([ci-cd.md](ci-cd.md) 3절) | 종료 코드 0 |
+| 검사 스크립트 변경 후 | 비밀값 검사·설치 스크립트 테스트 | `bash scripts/tests/test_secret_scan.sh`, `bash scripts/tests/test_install_betterleaks.sh` | 종료 코드 0 |
 | 커밋 후 | 작성자 정보와 메시지 | `git log -1 --format='%an %cn%n%B%n%(trailers)'` | 기존 작성자 정보, D-O31 위반 표시 없음 |
 
 - 0이 아닌 종료 코드는 모두 실패다. 실패를 우회하지 않는다.
