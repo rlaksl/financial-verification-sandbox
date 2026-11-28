@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# pre-commit: staged changes and full Git history (D-O25). Any non-zero blocks the commit.
+# Install (this clone only): git config --local core.hooksPath scripts/hooks
+# The hook can be bypassed (git commit --no-verify, unset core.hooksPath); CI scans again before merge (D-O26).
+set -u
+root=$(git rev-parse --show-toplevel) || exit 2
+"$root/scripts/secret-scan.sh" staged || { echo "pre-commit: blocked by secret scan (staged)" >&2; exit 1; }
+"$root/scripts/secret-scan.sh" history || { echo "pre-commit: blocked by secret scan (history)" >&2; exit 1; }
+exit 0

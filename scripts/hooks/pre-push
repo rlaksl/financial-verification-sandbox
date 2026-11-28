@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# pre-push: full Git history of all refs plus the commits being pushed (D-O25). Any non-zero blocks the push.
+# Git passes "<local ref> <local sha> <remote ref> <remote sha>" per ref on stdin. The local SHA is scanned
+# even when no local ref points to it (e.g. git push origin <sha>:refs/heads/x). Deletions send nothing.
+set -u
+root=$(git rev-parse --show-toplevel) || exit 2
+block() { echo "pre-push: blocked: $*" >&2; exit 1; }
+
+sha_re='^[0-9a-f]{40}([0-9a-f]{24})?$'
+zero_re='^0+$'
+revs=()
+while IFS=' ' read -r local_ref local_sha remote_ref remote_sha extra || [ -n "${local_ref:-}" ]; do
+  [ -n "$remote_sha" ] && [ -z "$extra" ] || block "malformed pre-push input"
+  [[ "$local_sha" =~ $sha_re ]] && [[ "$remote_sha" =~ $sha_re ]] || block "malformed pre-push input"
+  [[ "$local_sha" =~ $zero_re ]] && continue
+  revs+=(--rev "$local_sha")
+done
+
+"$root/scripts/secret-scan.sh" history ${revs[@]+"${revs[@]}"} || block "secret scan (history and pushed commits)"
+exit 0
