@@ -1,6 +1,6 @@
 # 현재 상태
 
-기준일: 2026-11-26
+기준일: 2026-11-28
 
 ## 현재 단계
 
@@ -8,7 +8,8 @@
 
 - 요구사항, 위협 모델, 기술 비교, PoC 계획, 운영 규칙을 설계 문서로 정리했다.
 - 초기 저장소 설정과 설계 문서 기준선(#5), GitHub Projects·Milestone·Sprint 1 설정을 완료했다.
-- **CI, Rulesets, PoC, 코딩, 테스트는 시작하지 않았다.**
+- 개발 도구로 비밀값 검사 Hook, CI(`pr-title`, `secret-scan`, `check-docs`, `script-tests`), Rulesets를 구성했다 (#9). 부트스트랩 예외(D-O28)는 2026-11-28에 종료했다.
+- **PoC, 애플리케이션 코딩과 테스트는 시작하지 않았다.**
 - **요구사항·기술 쟁점·PoC 항목 중 실행 검증을 완료한 항목은 없다.** 개발 도구 검증은 아래 "검증 상태"에 따로 적는다.
 
 ## 완료한 작업
@@ -25,13 +26,20 @@
 | GitHub Projects, Milestone, Sprint 1 | 완료 |
 | 비밀값 검사 도구 결정 (D-O24 ~ D-O27, ADR-0001) | PR #13 병합 완료. Hook·CI 연동은 #9 |
 | 설계 문서 보완 (#7) | PoC 종합 판정 기준, M 계열 요청 무결성 시나리오, 운영 규칙(D-O28 ~ D-O32) 반영 |
+| 검증 하네스 (#8) | PR #15 병합 완료 |
+| 작업 절차·검증 증거 관리 보완 (#19) | PR #20 병합 완료 |
+| 비밀값 검사 Hook·CI·Rulesets (#9) | Hook·검사 스크립트 PR #21, Linux 해시 고정 PR #22, CI Workflow PR #23 병합 완료. main·tags Ruleset과 squash 전용 병합 설정 적용. 병합 차단은 검증용 PR #24·#25로 확인했다(병합하지 않음). Push Protection 실제 차단은 미검증(완료 기준 예외 승인) |
 
 ## 검증 상태
 
 - 모든 요구사항, 기술 쟁점, PoC 시나리오가 실행 검증 전이다.
 - 프레임워크 관련 근거는 소스 읽기다 (Spring Security 7.2.0, 커밋 00d500621a9561f353e63b596f4128230a70862c 등).
 - 일부 명세 근거는 재확인 또는 미확인 상태다 ([명세·소스 분석 기록](research/spec-source-analysis.md) 4절).
-- 개발 도구: Betterleaks v1.10.1은 macOS arm64에서만 배포 파일 검증과 기능 시나리오를 실행 검증했다 (검증 불충분). Linux CI 배포 파일, Hook·CI 연동, Push Protection의 실제 차단은 미검증이다. Push Protection은 저장소 설정 활성화만 확인했다 ([ADR-0001](adr/0001-secret-scanning-betterleaks.md)).
+- 개발 도구 (상세는 [결정·상태 대장](decision-register.md)의 D-O08, D-O24 ~ D-O28, D-O32, D-O33):
+  - 실행 검증: Betterleaks v1.10.1 배포 파일 관문(macOS arm64, Windows x64, Linux x64 CI), 로컬 Hook 차단(Windows), CI 검사와 Hook을 우회한 합성 값의 탐지, Rulesets의 필수 검사 실패·미해결 대화 병합 거부
+  - 설정 확인만 함: Push Protection 활성화, Tag Ruleset
+  - 미검증: Push Protection의 실제 차단(조사 범위에서 공식 검증 수단을 확인하지 못함), Tag Ruleset의 실제 동작, PR을 통한 검사 약화 방지의 실제 CI 동작(로컬 모의 실행만), macOS에서의 Hook 실행, SLSA 빌드 출처, 외부 통신 여부
+  - [ADR-0001](adr/0001-secret-scanning-betterleaks.md)의 Verification 절은 채택 당시 기록이며, 이후 결과는 결정 대장에 기록한다.
 
 ## 현재 우선 후보 (확정 아님)
 
@@ -59,11 +67,10 @@
 
 ## 다음 작업
 
-1. 검증 하네스 준비 (#8)
-2. 비밀값 검사 Hook·초기 CI 실행 확인, Rulesets 활성화와 병합 차단 검증 (#9)
-3. AI 리뷰 연동 (이용 자격 확인 후, #10)
-4. Phase 0 종료 점검 (#11)
-5. Phase 1 착수 전 결정 (U-07a, U-27, U-32)
+1. #9 종료 (완료 기준 예외 승인 근거 기록)
+2. AI 리뷰 연동 (이용 자격 확인 후, #10)
+3. Phase 0 종료 점검 (#11)
+4. Phase 1 착수 전 결정 (U-07a, U-27, U-32)
 
 ## Blocker
 
