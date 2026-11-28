@@ -18,3 +18,5 @@ Phase 0(초기 설정과 설계 문서 정리) 진행 중이며, 아직 애플�
 
 - [AGENTS.md](AGENTS.md): 공통 작업 규칙과 설계 문서 위치
 - [docs/](docs/): 요구사항, 위협 모델, 결정 대장, 기술 조사, PoC 계획, 프로세스 문서
+
+<!-- Ruleset block check for #9. This PR is not merged. -->
