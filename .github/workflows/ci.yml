@@ -1,0 +1,156 @@
+# CI for pull requests to main and pushes to main (#9, D-O26, D-O33).
+# Workflow changes are single PRs (git-workflow.md).
+#
+# Trust boundary (D-O33):
+# - pull_request only; pull_request_target is not used (it runs with a write-capable token and
+#   secrets in the base context, where checking out PR code is the known injection path).
+# - Pull requests: scripts, tests and .betterleaks.toml come from the base commit ("trusted/").
+#   The PR checkout ("scanned/") is only the scan and check target. A PR cannot weaken these checks
+#   by editing the scripts or the configuration; such changes take effect after merge.
+# - Pushes to main: the pushed commit is both trusted and scanned.
+# - This file itself is not protected by the above: a PR can edit it. That relies on the single-PR
+#   rule for workflow changes and owner review.
+# - No secrets are used. The read-only GITHUB_TOKEN is passed only to the install step
+#   (gh release verify-asset). Checkouts do not persist credentials.
+
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title:
+    name: pr-title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Check PR title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -u
+          pattern='^(feat|fix|refactor|perf|test|docs|build|ci|chore|poc)\([a-z0-9-]+\): .+'
+          if [[ "$TITLE" =~ $pattern ]]; then
+            echo "PR title format ok"
+          else
+            echo "::error::PR title must match 'type(scope): 설명' (git-workflow.md 2절)"
+            exit 1
+          fi
+
+  secret-scan:
+    name: secret-scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout scan target (full history)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          path: scanned
+
+      - name: Checkout trusted scripts and configuration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          path: trusted
+
+      - name: Require trusted files
+        run: |
+          set -u
+          for f in scripts/secret-scan.sh scripts/install-betterleaks.sh .betterleaks.toml; do
+            [ -f "trusted/$f" ] || { echo "::error::trusted/$f missing in the trusted commit"; exit 1; }
+          done
+
+      - name: Install Betterleaks (G0 ~ G3, gh version check)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash trusted/scripts/install-betterleaks.sh --dest "$RUNNER_TEMP/betterleaks"
+
+      - name: Confirm scan scope
+        working-directory: scanned
+        env:
+          TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -u
+          git cat-file -e "$TARGET_SHA^{commit}" || { echo "::error::target commit not in checkout"; exit 1; }
+          git merge-base --is-ancestor "$TARGET_SHA" HEAD || { echo "::error::target commit not reachable from HEAD"; exit 1; }
+          echo "HEAD: $(git rev-parse HEAD)"
+          echo "target: $TARGET_SHA"
+          echo "refs scanned with --all:"
+          git for-each-ref --format='  %(refname)'
+          echo "commits reachable from --all: $(git rev-list --all | wc -l)"
+
+      - name: Scan full Git history with the trusted configuration
+        working-directory: scanned
+        env:
+          BETTERLEAKS_BIN: ${{ runner.temp }}/betterleaks/betterleaks
+          TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: bash "$GITHUB_WORKSPACE/trusted/scripts/secret-scan.sh" history --config "$GITHUB_WORKSPACE/trusted/.betterleaks.toml" --rev "$TARGET_SHA"
+
+  check-docs:
+    name: check-docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout check target
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          path: scanned
+
+      - name: Checkout trusted checker
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          path: trusted
+
+      - name: Check documents with the trusted checker
+        run: python3 -B -I trusted/scripts/check-docs.py --root scanned
+
+  script-tests:
+    name: script-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout trusted scripts and tests
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          path: trusted
+
+      - name: Test the document checker
+        run: python3 -B -I trusted/scripts/tests/test_check_docs.py
+
+      - name: Install Betterleaks (G0 ~ G3, gh version check)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash trusted/scripts/install-betterleaks.sh --dest "$RUNNER_TEMP/betterleaks"
+
+      - name: Test the secret scan script and hooks
+        run: |
+          set -u
+          export FVS_TEST_BETTERLEAKS="$RUNNER_TEMP/betterleaks/betterleaks"
+          FVS_TEST_BETTERLEAKS_SHA256=$(sha256sum "$FVS_TEST_BETTERLEAKS" | cut -d' ' -f1)
+          export FVS_TEST_BETTERLEAKS_SHA256
+          # The test aborts unless this hash is pinned in trusted/scripts/secret-scan.sh.
+          bash trusted/scripts/tests/test_secret_scan.sh
