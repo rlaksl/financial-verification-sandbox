@@ -1,7 +1,7 @@
 # Betterleaks v1.10.1 common scan configuration (D-O24, ADR-0001).
 # v1 does not load this file automatically: always pass it with -c.
 # Changing rules or adding allowlists weakens the scan: mark the PR as security-impacting.
-# The trusted configuration for CI will be determined during CI setup (D-O26, #9).
+# For pull requests, CI scans with this file from the base commit, not from the PR (D-O33).
 
 title = "financial-verification-sandbox"
 
