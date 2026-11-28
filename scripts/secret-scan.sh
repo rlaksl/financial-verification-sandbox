@@ -23,11 +23,12 @@ fail() { echo "secret-scan: ERROR: $*" >&2; exit 2; }
 # SHA-256 of the extracted binary after the ADR-0001 gates passed. Changes need review.
 #   darwin_arm64: ADR-0001 execution record
 #   windows_x64:  manual install record of the ZIP that passed the same gates (2026-11-27)
-#   linux_x64:    not pinned yet; verify and pin before enabling the CI secret scan
+#   linux_x64:    tar.gz that passed the same gates on Windows (2026-11-28); extracted, not executed there
 pinned_sha256() {
   case "$1" in
     darwin_arm64) echo "13ac5109fa85a590c7ba6e7f130311e0c60a2bf582c3aac073176c93b46621a8" ;;
     windows_x64) echo "d9946b77870a30838f9a6a3591ea45c9c6530abfb0cf3890d2046b3d42816049" ;;
+    linux_x64) echo "506082605cad984abd6ecf979a5f00fd6d701bc3ab2104a6029b1d068b3e320c" ;;
     *) return 1 ;;
   esac
 }

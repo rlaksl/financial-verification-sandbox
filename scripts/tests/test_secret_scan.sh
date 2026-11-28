@@ -136,10 +136,21 @@ check "unpinned binary rejected" 2 "$(BETTERLEAKS_BIN="$T/stub-ok/betterleaks" s
 check "sibling hash file is not trusted" yes "$([ -f "$T/stub-ok/betterleaks.sha256" ] && echo yes)"
 check "default path uses platform file name" 2 "$(unset BETTERLEAKS_BIN; XDG_CACHE_HOME="$T/nocache" scan "$r" history)"
 check "default path error names betterleaks$exe" 1 "$(grep -c "nocache/fvs-tools/betterleaks-1.10.1/betterleaks$exe (" "$(ls -t "$outputs"/repo-binary-history-*.log | head -n 1)")"
-mkdir -p "$T/mock-linux"
-printf '#!/bin/sh\ncase "$1" in -s) echo Linux ;; -m) echo x86_64 ;; *) exit 1 ;; esac\n' > "$T/mock-linux/uname"
-chmod 755 "$T/mock-linux/uname"
-check "platform without pinned SHA-256 (linux_x64) rejected" 2 "$(PATH="$T/mock-linux:$PATH" scan "$r" history)"
+mock_uname() { # dir system machine
+  mkdir -p "$T/$1"
+  printf '#!/bin/sh\ncase "$1" in -s) echo %s ;; -m) echo %s ;; *) exit 1 ;; esac\n' "$2" "$3" > "$T/$1/uname"
+  chmod 755 "$T/$1/uname"
+}
+last_log() { ls -t "$outputs"/repo-binary-history-*.log | head -n 1; }
+# The stub never matches a pinned value, so these hold on every host (including Linux CI).
+mock_uname mock-linux Linux x86_64
+check "linux_x64 binary not matching the pinned value rejected" 2 \
+  "$(BETTERLEAKS_BIN="$T/stub-ok/betterleaks" PATH="$T/mock-linux:$PATH" scan "$r" history)"
+check "linux_x64 rejection reason is the pinned value" 1 "$(grep -c "does not match the pinned value for linux_x64" "$(last_log)")"
+mock_uname mock-unsupported FreeBSD amd64
+check "unsupported platform rejected" 2 \
+  "$(BETTERLEAKS_BIN="$T/stub-ok/betterleaks" PATH="$T/mock-unsupported:$PATH" scan "$r" history)"
+check "unsupported platform rejection reason" 1 "$(grep -c "unsupported platform: FreeBSD/amd64" "$(last_log)")"
 
 # 7. scanner process failure and version output (stub binaries pinned in a test copy of the script)
 mkstub stub-fail '#!/bin/sh
